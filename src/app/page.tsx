@@ -7,17 +7,18 @@ export default function Home() {
     let text: String = "It's the start of a new project that I'll never finish.";
     
     useEffect(() => {
-        const keydown = (e) => {
-	    if (e.key === "Shift" || e.key === "Ctrl") return;
-	    else if (e.key === "Backspace") {
+        const keydown = (event) => {
+	    event.preventDefault();
+	    if (event.key === "Shift" || event.key === "Control" || event.key === "Alt" || event.key === "Meta") return;
+	    else if (event.key === "Backspace") {
 	        text = text.substring(0, text.length - 1);
 	        document.querySelector(".text-body").innerHTML = text;
-		return
+		return;
 	    } else {
-	        text += e.key;
+	        text += event.key;
 	        document.querySelector(".text-body").innerHTML = text;
-	    }
-	};
+	   }
+	});
     	document.addEventListener("keydown", keydown);
     })
     
