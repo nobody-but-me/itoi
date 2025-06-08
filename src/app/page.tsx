@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function Home() {
     const DISTANCE: int = 20;
     
-    let text: String = "Text\xa0Anything\xa0You\xa0Want ";
+    let text: String = "Text\xa0Anything\xa0You\xa0Want. ";
     let index: int = text.length - 1;
     
     useEffect(() => {
@@ -15,7 +15,7 @@ export default function Home() {
 	        console.error("[ERROR]: Invalid or missing text node.");
 	        return null;
 	    }
-	    if (char_index < 0 || char_index >= text_node.length) {
+	    if (char_index < 0 || char_index > text_node.length) {
 	        console.error("[ERROR]: Index is out of the bounds.");
 		return null;
 	    }
@@ -32,7 +32,7 @@ export default function Home() {
     	}
 	
         const update = () => {
-	    document.getElementById("text-body").innerHTML = text;
+	    document.getElementById("text-body").textContent = text;
 	    
 	    let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, index);
 	    document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${cursor_pos.y - 85}px)`;
@@ -41,13 +41,20 @@ export default function Home() {
 	
 	const keydown = (event) => {
 	    event.preventDefault();
+	    console.log(text);
 	    switch (event.key) {
 	        case "Shift":
 		case "Control":
 		case "Alt":
 		case "Meta":
 		case "CapsLock":
+		case "Enter":
 		case "Dead":
+		    break;
+		case "Tab":
+		    text = text.slice(0, index) + "\xa0\xa0\xa0\xa0" + text.slice(index);
+		    index++;
+		    update();
 		    break;
 	        case "End":
 	            index = text.length - 1;
@@ -79,7 +86,7 @@ export default function Home() {
 			text = txt;
 			index++;
 			update();
-			return;
+			break;
 		    };
 		    txt = text.slice(0, index) + `${event.key}` + text.slice(index);
 	            text = txt;
