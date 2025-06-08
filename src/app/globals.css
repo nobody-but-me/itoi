@@ -24,6 +24,5 @@ body {
     background: var(--background);
     color: var(--foreground);
     
-    font-size: 15px;
-    letter-spacing: 15px;
+    letter-spacing: 5px;
 }
