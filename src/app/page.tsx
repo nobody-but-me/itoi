@@ -35,8 +35,9 @@ export default function Home() {
 	    document.getElementById("text-body").innerHTML = text;
 	    
 	    let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, index);
-	    document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x}px, ${cursor_pos.y - 10}px)`;
+	    document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${cursor_pos.y - 85}px)`;
 	}
+	update();
 	
 	const keydown = (event) => {
 	    event.preventDefault();
@@ -46,6 +47,7 @@ export default function Home() {
 		case "Alt":
 		case "Meta":
 		case "CapsLock":
+		case "Dead":
 		    break;
 	        case "End":
 	            index = text.length - 1;
@@ -89,11 +91,11 @@ export default function Home() {
     })
     
     return (
-        <>
+        <div className="p-15">
             <div id="text-body">
                 {text}
             </div>
-	    <div id="cursor" className="bg-[#ffffff] w-3 h-1/1000 absolute"></div>
-	</>
+	    <div id="cursor" className="bg-[#00FF00] w-3 h-5 absolute"></div>
+	</div>
     );
 }
