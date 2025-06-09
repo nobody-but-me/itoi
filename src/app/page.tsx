@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function Home() {
     const DISTANCE: int = 20;
     
-    let text: String = "Text\xa0Anything\xa0You\xa0Want. ";
+    let text: Array = "Text\xa0Anything\xa0You\xa0Want\xa0\n\xa0Another\xa0line";
     let index: int = text.length - 1;
     
     useEffect(() => {
@@ -35,7 +35,9 @@ export default function Home() {
 	    document.getElementById("text-body").textContent = text;
 	    
 	    let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, index);
-	    document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${cursor_pos.y - 85}px)`;
+	    if (cursor_pos) {
+	       document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${0}px)`;
+	    }
 	}
 	update();
 	
@@ -53,30 +55,25 @@ export default function Home() {
 		    break;
 		case "Tab":
 		    text = text.slice(0, index) + "\xa0\xa0\xa0\xa0" + text.slice(index);
-		    index++;
-		    update();
+		    index += 4;
 		    break;
 	        case "End":
 	            index = text.length - 1;
-		    update();
 		    break;
 		case "ArrowLeft":
 		    if (index > 0) {
 		        index--;
-			update();
 			break;
 		    } else break;
 		case "ArrowRight":
 		    if (index < text.length - 1) {
 		        index++;
-			update();
 			break;
 		    } else break;
 		case "Backspace":
 		    if (index > 0) {
 		        text = text.substring(0, index - 1) + text.substring(index);
 			index--;
-			update();
 		    }
 		    break;
 		default:
@@ -85,14 +82,13 @@ export default function Home() {
 		        txt = text.slice(0, index) + "\xa0" + text.slice(index);
 			text = txt;
 			index++;
-			update();
 			break;
 		    };
 		    txt = text.slice(0, index) + `${event.key}` + text.slice(index);
 	            text = txt;
 		    index++;
-		    update();
 	    }
+	    update();
 	});
     	document.addEventListener("keydown", keydown);
     })

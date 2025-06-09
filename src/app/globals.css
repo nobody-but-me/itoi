@@ -27,6 +27,10 @@ body {
     letter-spacing: 5px;
 }
 
+#text-body {
+    white-space: pre;
+}
+
 #cursor {
     animation: 1s linear infinite running blink;
     animation-timing-function: step-end;
