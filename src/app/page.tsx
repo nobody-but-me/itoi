@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function Home() {
     
     useEffect(() => {
-        let text: Array = ["#include\xa0<stdio.h>", "\xa0", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}    "];
+        let text: Array = ["#include\xa0<stdio.h>", "\xa0", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}"];
 	let current_line: int = 0;
 	
 	let cursor: int = text[current_line].length;
@@ -34,10 +34,11 @@ export default function Home() {
     	}
 	const get_text_size = () => {
 	    let size_t: int = 0;
-	    for (let i: int = 0; i < text.length; i++) {
-	        for (let j: int = 0; j < text[i].length; j++) {
+	    for (let i in text) {
+	        for (let j in text[i]) {
 		    size_t++;
 		}
+		size_t++;
 	    }
 	    return size_t;
 	}
@@ -51,7 +52,7 @@ export default function Home() {
 	    
 	    let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, cursor, get_text_size());
 	    if (cursor_pos) {
-	       document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${cursor_pos.y - 164}px)`;
+	       document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${cursor_pos.y - 67 - (24 * text.length - 24)}px)`;
 	    }
 	}
 	update();
@@ -64,12 +65,18 @@ export default function Home() {
 		case "Alt":
 		case "Meta":
 		case "CapsLock":
-		case "Enter":
 		case "Dead":
 		    break;
 		case "Tab":
 		    text[current_line] = text[current_line].slice(0, index) + "\xa0\xa0\xa0\xa0" + text[current_line].slice(index);
 		    index += 4;
+		    break;
+		case "Enter":
+		    text.splice(current_line + 1, 0, "");
+		    cursor += text[current_line].length - index;
+		    cursor += text[current_line + 1].length + 1;
+		    index = text[current_line + 1].length;
+		    current_line++;
 		    break;
 		case "ArrowLeft":
 		    if (cursor > 0) {
@@ -82,7 +89,7 @@ export default function Home() {
 			break;
 		    } else break;
 		case "ArrowRight":
-		    if (cursor < get_text_size()) {
+		    if (cursor < get_text_size() - 1) {
 		        cursor++;
 		        index++;
 			if (index > text[current_line].length) {
@@ -92,7 +99,7 @@ export default function Home() {
 			break;
 		    } else break;
 		case "ArrowDown":
-		     if (current_line < text.length) {
+		     if (current_line < text.length - 1) {
 			 if (index <= text[current_line + 1].length) {
 			     cursor += text[current_line].length - index;
 			     cursor += index + 1;
@@ -110,9 +117,8 @@ export default function Home() {
 			     cursor -= index + text[current_line - 1].length + 1;
 			     cursor += index;
 			 } else {
-			     cursor -= index + text[current_line - 1].length;
-			     cursor -= 1;
-			     index = 0;
+			     cursor -= index + 1;
+			     index = text[current_line - 1].length;
 			 }
 		         current_line--;
 		     }
