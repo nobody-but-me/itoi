@@ -6,11 +6,11 @@ import Image from "next/image";
 export default function Home() {
     
     useEffect(() => {
-        let text: Array = ["#include\xa0<stdio.h>", "\xa0", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}  "];
+        let text: Array = ["#include\xa0<stdio.h>", "\xa0", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}    "];
 	let current_line: int = 0;
 	
-	let cursor: int = text[current_line].length - 1;
-	let index: int = text[current_line].length - 1;
+	let cursor: int = text[current_line].length;
+	let index: int = text[current_line].length;
 	
         const get_character_position = (text_node, char_index, end) => {
             if (!text_node || text_node.nodeType !== Node.TEXT_NODE) {
@@ -64,10 +64,7 @@ export default function Home() {
 		case "Alt":
 		case "Meta":
 		case "CapsLock":
-		case "End":
 		case "Enter":
-		case "ArrowDown":
-		case "ArrowUp":
 		case "Dead":
 		    break;
 		case "Tab":
@@ -94,6 +91,42 @@ export default function Home() {
 			}
 			break;
 		    } else break;
+		case "ArrowDown":
+		     if (current_line < text.length) {
+			 if (index <= text[current_line + 1].length) {
+			     cursor += text[current_line].length - index;
+			     cursor += index + 1;
+			 } else {
+			     cursor += text[current_line].length - index;
+			     cursor += text[current_line + 1].length + 1;
+			     index = text[current_line + 1].length;
+			 }
+		         current_line++;
+		     }
+		     break;
+		case "ArrowUp":
+		     if (current_line > 0) {
+		         if (index <= text[current_line - 1].length) {
+			     cursor -= index + text[current_line - 1].length + 1;
+			     cursor += index;
+			 } else {
+			     cursor -= index + text[current_line - 1].length;
+			     cursor -= 1;
+			     index = 0;
+			 }
+		         current_line--;
+		     }
+		     break;
+		case "End":
+		     cursor += text[current_line].length - index - 1;
+		     index = text[current_line].length;
+		     cursor += 1;
+		     break;
+		case "Home":
+		     cursor -= index + 1;
+		     index = 0;
+		     cursor += 1;
+		     break;
 		case "Backspace":
 		    if (cursor > 0) {
 		        text[current_line] = text[current_line].substring(0, index - 1) + text[current_line].substring(index);
