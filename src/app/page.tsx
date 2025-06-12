@@ -1,4 +1,5 @@
 
+
 "use client";
 import { useEffect } from 'react';
 import Image from "next/image";
@@ -6,7 +7,7 @@ import Image from "next/image";
 export default function Home() {
     
     useEffect(() => {
-        let text: Array = ["#include\xa0<stdio.h>", "\xa0", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}"];
+        let text: Array = ["#include\xa0<stdio.h>", "", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}"];
 	let current_line: int = 0;
 	
 	let cursor: int = text[current_line].length;
@@ -42,12 +43,15 @@ export default function Home() {
 	    }
 	    return size_t;
 	}
+	const parse = (string) => {
+	    return string.replace(/\xa0/g, "·");
+	}
 	
         const update = () => {
 	    document.getElementById("text-body").textContent = "";
 	    // TODO: no.
 	    for (let i: int = 0; i < text.length; i++) {
-	        document.getElementById("text-body").textContent += text[i] + '\n';
+	        document.getElementById("text-body").textContent += parse(text[i]) + '\n';
 	    }
 	    
 	    let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, cursor, get_text_size());
@@ -69,14 +73,32 @@ export default function Home() {
 		    break;
 		case "Tab":
 		    text[current_line] = text[current_line].slice(0, index) + "\xa0\xa0\xa0\xa0" + text[current_line].slice(index);
+		    cursor += 4;
 		    index += 4;
 		    break;
 		case "Enter":
-		    text.splice(current_line + 1, 0, "");
-		    cursor += text[current_line].length - index;
-		    cursor += text[current_line + 1].length + 1;
-		    index = text[current_line + 1].length;
-		    current_line++;
+		    if (index === text[current_line].length) {
+		        text.splice(current_line + 1, 0, "");
+		        cursor += text[current_line].length - index;
+		        cursor += text[current_line + 1].length + 1;
+		        index = text[current_line + 1].length;
+		        current_line++;
+		    } else {
+		        text.splice(current_line + 1, 0, "");
+		        
+		        // let i = text[current_line].split(text[current_line][index - 1]);
+			let i = text[current_line].substring(0, index - 1) + "," + text[current_line].substring(index);
+			let j = i.split(",");
+			
+		        text[current_line] = text[current_line].replace(j[j.length - 1], "");
+		        
+		        cursor += text[current_line].length - index;
+		        cursor += text[current_line + 1].length + 1;
+		        index = text[current_line + 1].length;
+		        
+		        text[current_line + 1] += j[j.length - 1];
+		        current_line++;
+		    }
 		    break;
 		case "ArrowLeft":
 		    if (cursor > 0) {
@@ -134,10 +156,33 @@ export default function Home() {
 		     cursor += 1;
 		     break;
 		case "Backspace":
-		    if (cursor > 0) {
+		    if (index > 0) {
 		        text[current_line] = text[current_line].substring(0, index - 1) + text[current_line].substring(index);
 			cursor--;
 			index--;
+			break;
+		    } else {
+		        if (current_line > 0) {
+		            if (text[current_line].length >= 1) {
+			        let last_line_length: int = text[current_line].length;
+			        cursor += last_line_length;
+			        
+			        text[current_line - 1] += text[current_line];
+			        text.splice(current_line, 1);
+			        
+			        current_line--;
+			        
+			        cursor -= last_line_length + 1;
+			        index = text[current_line].length - last_line_length;
+			        break;
+			    } else {
+			        cursor += text[current_line].length;
+			        text.splice(current_line, 1);
+			        current_line--;
+			        cursor -= 1;
+			        index = text[current_line].length;
+			    }
+			}
 		    }
 		    break;
 		default:
