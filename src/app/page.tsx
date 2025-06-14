@@ -1,67 +1,98 @@
 
 
 "use client";
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from "next/image";
+
+let text: Array = ["#include\xa0<stdio.h>", "", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}", ""];
+let current_line: int = 0;
+
+let cursor: int = text[current_line].length;
+let index: int = text[current_line].length;
+let data;
+
+const get_character_position = (text_node, char_index, end) => {
+    if (!text_node || text_node.nodeType !== Node.TEXT_NODE) {
+        console.error("[ERROR]: Invalid or missing text node.");
+        return null;
+    }
+    if (char_index < 0 || char_index > text_node.length) {
+        console.error("[ERROR]: Index is out of the bounds.");
+        return null;
+    }
+    const range = document.createRange();
+    range.setStart(text_node, char_index);
+    range.setEnd(text_node, end);
+    const rects = range.getClientRects();
+    
+    if (rects.length > 0) {
+        const rect = rects[0];
+        return { x: rect.left, y: rect.top - (rect.height) };
+    }
+    return null;
+}
+
+const get_text_size = () => {
+    let size_t: int = 0;
+    for (let i in text) {
+        for (let j in text[i]) {
+            size_t++;
+        }
+        size_t++;
+    }
+    return size_t;
+}
+
+const parse = (string) => {
+    return string.replace(/\xa0/g, "·").replace(/ /g, "·");
+}
+
+const update = () => {
+    document.getElementById("text-body").textContent = "";
+    // TODO: no.
+    for (let i: int = 0; i < text.length; i++) {
+        document.getElementById("text-body").textContent += parse(text[i]) + '\n';
+    }
+    
+    let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, cursor, get_text_size());
+    if (cursor_pos) {
+        document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${cursor_pos.y - 67 - (24 * text.length - 24)}px)`;
+    }
+}
+
+function load_file(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        console.error("Please select a file.");
+        return;
+    }
+    // if (!file.name.endsWith('.txt')) {
+    //     console.error("Please upload a text file.");
+    //     return;
+    // }
+    const reader = new FileReader();
+    
+    let is_loading = false;
+    reader.onload = (e) => {
+        data = e.target.result;
+        is_loading = true;
+	parse(data);
+	
+        text = data.split("\n");
+        cursor = 0;
+        index = 0;
+        update();
+    };
+    reader.readAsText(file);
+}
 
 export default function Home() {
     
     useEffect(() => {
-        let text: Array = ["#include\xa0<stdio.h>", "", "int\xa0main(int\xa0argc,\xa0char\xa0*argv[])\xa0{", "\xa0\xa0\xa0\xa0printf('Hello\xa0World!');", "}"];
-	let current_line: int = 0;
-	
-	let cursor: int = text[current_line].length;
-	let index: int = text[current_line].length;
-	
-        const get_character_position = (text_node, char_index, end) => {
-            if (!text_node || text_node.nodeType !== Node.TEXT_NODE) {
-	        console.error("[ERROR]: Invalid or missing text node.");
-	        return null;
-	    }
-	    if (char_index < 0 || char_index > text_node.length) {
-	        console.error("[ERROR]: Index is out of the bounds.");
-		return null;
-	    }
-            const range = document.createRange();
-    	    range.setStart(text_node, char_index);
-    	    range.setEnd(text_node, end);
-    	    const rects = range.getClientRects();
-	    
-    	    if (rects.length > 0) {
-    	        const rect = rects[0];
-    	        return { x: rect.left, y: rect.top - (rect.height) };
-    	    }
-    	    return null;
-    	}
-	const get_text_size = () => {
-	    let size_t: int = 0;
-	    for (let i in text) {
-	        for (let j in text[i]) {
-		    size_t++;
-		}
-		size_t++;
-	    }
-	    return size_t;
-	}
-	const parse = (string) => {
-	    return string.replace(/\xa0/g, "·");
-	}
-	
-        const update = () => {
-	    document.getElementById("text-body").textContent = "";
-	    // TODO: no.
-	    for (let i: int = 0; i < text.length; i++) {
-	        document.getElementById("text-body").textContent += parse(text[i]) + '\n';
-	    }
-	    
-	    let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, cursor, get_text_size());
-	    if (cursor_pos) {
-	       document.getElementById("cursor").style["transform"] = `translate(${cursor_pos.x - 60}px, ${cursor_pos.y - 67 - (24 * text.length - 24)}px)`;
-	    }
-	}
 	update();
 	
 	const keydown = (event) => {
+	    event.stopImmediatePropagation();
 	    event.preventDefault();
 	    switch (event.key) {
 	        case "Shift":
@@ -206,6 +237,8 @@ export default function Home() {
             <div id="text-body">
             </div>
 	    <div id="cursor" className="bg-[#00FF00] w-3 h-5 absolute"></div>
+	    <input type="file" className="p-2 m-5 rounded-md border-1 border-solid border-white hover:border-[#00FF00]" onChange={load_file} />
+	    <div id="test"></div>
 	</div>
     );
 }
