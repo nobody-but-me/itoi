@@ -15,12 +15,12 @@
 @media (prefers-color-scheme: dark) {
     :root {
 	--background: #0a0a0a;
-	--foreground: #ededed;
+	--foreground: #ffffff;
     }
 }
 
 body {
-    font-family: "MathJax_Typewriter", "Courier", "Courier New", "FreeMono", "Times New Roman";
+    font-family: "Courier";
     background: var(--background);
     color: #00FF00;
     

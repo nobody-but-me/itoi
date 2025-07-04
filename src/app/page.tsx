@@ -43,15 +43,18 @@ const get_text_size = () => {
     return size_t;
 }
 
-const parse = (string) => {
+const parse_n = (string) => {
     return string.replace(/\xa0/g, "·").replace(/ /g, "·");
+}
+const parse_f = (string) => {
+    return string.replace(/ /g, "\xa0")
 }
 
 const update = () => {
     document.getElementById("text-body").textContent = "";
     // TODO: no.
     for (let i: int = 0; i < text.length; i++) {
-        document.getElementById("text-body").textContent += parse(text[i]) + '\n';
+        document.getElementById("text-body").textContent += parse_n(text[i]) + '\n';
     }
     
     let cursor_pos = get_character_position(document.getElementById("text-body").firstChild, cursor, get_text_size());
@@ -76,9 +79,10 @@ function load_file(event) {
     reader.onload = (e) => {
         data = e.target.result;
         is_loading = true;
-	parse(data);
+	parse_n(data);
 	
         text = data.split("\n");
+	for (let i: int = 0; i < text.length; i++) parse_f(text[i]);
         cursor = 0;
         index = 0;
         update();
